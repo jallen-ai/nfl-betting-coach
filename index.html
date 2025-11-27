@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Betting Coach</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            color: #00d4aa;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px 4px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: rgba(0,212,170,0.2);
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: #00d4aa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Inputs */
+        .input-group {
+            margin-bottom: 12px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #00d4aa;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00d4aa 0%, #00a080 100%);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        /* Setup section */
+        .setup-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .setup-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #00d4aa;
+            margin-bottom: 12px;
+        }
+        
+        .budget-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .budget-item label {
+            font-size: 0.75rem;
+            color: #888;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .budget-item .value-input {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        
+        .budget-item .value-input span {
+            color: #888;
+            margin-right: 4px;
+        }
+        
+        .budget-item .value-input input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 60px;
+            padding: 0;
+        }
+        
+        .budget-item .value-input input:focus {
+            outline: none;
+        }
+        
+        /* Boost toggle */
+        .boost-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .boost-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #00d4aa;
+        }
+        
+        .boost-toggle label {
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        
+        .boost-config {
+            display: none;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 12px;
+        }
+        
+        .boost-config.visible {
+            display: block;
+        }
+        
+        .boost-config-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .boost-config-row .input-group {
+            margin-bottom: 0;
+        }
+        
+        .boost-config-row select,
+        .boost-config-row input {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+        
+        /* Day chips */
+        .day-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .day-chip {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .day-chip.selected {
+            background: rgba(0,212,170,0.2);
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .day-chip .game-count {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        
+        /* Game Plan */
+        .game-plan {
+            margin-top: 20px;
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .plan-header h3 {
+            font-size: 1.2rem;
+            color: #00d4aa;
+            margin-bottom: 4px;
+        }
+        
+        .plan-date {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .play-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid #00d4aa;
+        }
+        
+        .play-card.boost-play {
+            border-left-color: #ffd93d;
+        }
+        
+        .play-card.alt-play {
+            border-left-color: #4dabf7;
+        }
+        
+        /* Strategy selector */
+        .strategy-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .strategy-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .strategy-btn.active {
+            background: rgba(0,212,170,0.15);
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .strategy-btn .strategy-name {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .strategy-btn .strategy-desc {
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+        
+        /* Summary cards */
+        .summary-card {
+            background: linear-gradient(135deg, rgba(0,212,170,0.2) 0%, rgba(0,160,128,0.1) 100%);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .summary-card .label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .summary-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4aa;
+        }
+        
+        .summary-card .detail {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .worst-case {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid rgba(255,107,107,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .worst-case .label {
+            font-size: 0.75rem;
+            color: #ff6b6b;
+        }
+        
+        .worst-case .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ff6b6b;
+        }
+        
+        .worst-case .detail {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        
+        .loading.hidden {
+            display: none;
+        }
+        
+        /* Error */
+        .error {
+            background: rgba(255,107,107,0.1);
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        
+        .error.hidden {
+            display: none;
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Parlay option cards */
+        .parlay-option {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .parlay-option.recommended {
+            background: rgba(0,212,170,0.1);
+            border-color: #00d4aa;
+        }
+        
+        .parlay-option.budget-option {
+            background: rgba(77,171,247,0.1);
+            border-color: #4dabf7;
+        }
+        
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .option-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .option-badge.boost {
+            background: #ffd93d;
+            color: #000;
+        }
+        
+        .option-badge.budget {
+            background: #4dabf7;
+            color: #000;
+        }
+        
+        .option-badge.recommended {
+            background: #00d4aa;
+            color: #000;
+        }
+        
+        .option-profit {
+            text-align: right;
+        }
+        
+        .option-profit .amount {
+            color: #00d4aa;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .option-profit .subtext {
+            color: #666;
+            font-size: 0.65rem;
+        }
+        
+        .leg-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0,212,170,0.05);
+            border-radius: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .leg-info .team {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .leg-info .odds {
+            color: #00d4aa;
+        }
+        
+        .leg-info .opponent {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .leg-time {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        
+        .option-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+        }
+        
+        .option-footer .label {
+            color: #888;
+        }
+        
+        .option-footer .value {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .option-footer .hedge-info {
+            color: #666;
+        }
+        
+        /* Props styling */
+        .prop-bet {
+            background: rgba(255,217,61,0.1);
+            border: 1px solid rgba(255,217,61,0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+        }
+        
+        .prop-bet .player {
+            font-weight: 600;
+            color: #ffd93d;
+        }
+        
+        .prop-bet .prop-line {
+            color: #fff;
+        }
+        
+        .prop-bet .prop-odds {
+            color: #00d4aa;
+        }
+        
+        /* Alt strategy specific */
+        .alt-explanation {
+            background: rgba(77,171,247,0.1);
+            border: 1px solid rgba(77,171,247,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .alt-explanation h4 {
+            color: #4dabf7;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .alt-explanation p {
+            color: #888;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        
+        /* Promo tab styles */
+        .promo-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .promo-section h3 {
+            font-size: 0.9rem;
+            color: #ffd93d;
+            margin-bottom: 12px;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .result-row:last-child {
+            border-bottom: none;
+        }
+        
+        .result-row .label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .result-row .value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .result-row .value.positive {
+            color: #00d4aa;
+        }
+        
+        .result-row .value.negative {
+            color: #ff6b6b;
+        }
+        
+        /* Calculator styles */
+        .leg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .leg-status {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .leg-status button {
+            padding: 4px 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        .leg-status button.active {
+            background: rgba(0,212,170,0.2);
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+        
+        .opponent-input {
+            margin-top: 4px;
+        }
+        
+        .opponent-input input {
+            background: rgba(255,255,255,0.05);
+            color: #666;
+            font-size: 0.8rem;
+            padding: 6px 10px;
+        }
+        
+        .hedge-card {
+            background: rgba(0,212,170,0.1);
+            border: 1px solid rgba(0,212,170,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .hedge-card h3 {
+            color: #00d4aa;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        
+        .hedge-option {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .hedge-option h4 {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .hedge-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏈 NFL Betting Coach</h1>
+        <p class="subtitle">Math-based picks. Guaranteed money.</p>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('coach')">🎯 Coach</div>
+            <div class="tab" onclick="switchTab('alt')">🎲 Alt Strategy</div>
+            <div class="tab" onclick="switchTab('calculator')">📊 Calc</div>
+            <div class="tab" onclick="switchTab('promotions')">🎁 Promos</div>
+        </div>
+        
+        <!-- ==================== COACH'S PICK TAB ==================== -->
+        <div class="tab-content active" id="tab-coach">
+            <div class="card">
+                <h2><span class="icon">⚙️</span> Your Setup</h2>
+                
+                <!-- Budgets -->
+                <div class="setup-section">
+                    <div class="setup-header">💰 Budgets</div>
+                    <div class="budget-row">
+                        <div class="budget-item">
+                            <label>Total Budget</label>
+                            <div class="value-input">
+                                <span>$</span>
+                                <input type="number" id="coach-total-budget" value="50">
+                            </div>
+                        </div>
+                        <div class="budget-item">
+                            <label>Boost Play</label>
+                            <div class="value-input">
+                                <span>$</span>
+                                <input type="number" id="coach-boost-budget" value="25">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Boost Config -->
+                <div class="setup-section">
+                    <div class="setup-header">🚀 Your Boost</div>
+                    <div class="boost-toggle">
+                        <input type="checkbox" id="has-boost" onchange="toggleBoostConfig()">
+                        <label for="has-boost">I have a boost available</label>
+                    </div>
+                    <div class="boost-config" id="boost-config">
+                        <div class="boost-config-row">
+                            <div class="input-group">
+                                <label>Type</label>
+                                <select id="boost-type">
+                                    <option value="profit">Profit Boost</option>
+                                    <option value="odds">Odds Boost</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Boost %</label>
+                                <input type="number" id="boost-pct" value="30">
+                            </div>
+                        </div>
+                        <div class="boost-config-row">
+                            <div class="input-group">
+                                <label>Applies to</label>
+                                <select id="boost-applies">
+                                    <option value="single">Single Bet</option>
+                                    <option value="3leg">3+ Leg Parlay</option>
+                                    <option value="4leg">4+ Leg Parlay</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Max Bet</label>
+                                <input type="number" id="boost-max" value="10">
+                            </div>
+                        </div>
+                        <div class="boost-config-row" id="min-odds-row">
+                            <div class="input-group">
+                                <label>Min Odds Required</label>
+                                <input type="number" id="boost-min-odds" value="300" placeholder="+300">
+                            </div>
+                            <div class="input-group">
+                                <label>&nbsp;</label>
+                                <div style="font-size: 0.7rem; color: #888; padding-top: 8px;">e.g., +300 minimum</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Day Selection -->
+                <div class="setup-section">
+                    <div class="setup-header">📅 Game Days</div>
+                    <div class="day-chips" id="day-chips">
+                        <div class="day-chip">Loading...</div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="generate-btn" onclick="generateGamePlan()">
+                    Generate My Game Plan
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading hidden" id="loading">
+                ⏳ Analyzing games and finding optimal plays...
+            </div>
+            
+            <!-- Error -->
+            <div class="error hidden" id="error"></div>
+            
+            <!-- Game Plan Output -->
+            <div class="game-plan hidden" id="game-plan">
+                <div class="plan-header">
+                    <h3>🎯 Your Game Plan</h3>
+                    <div class="plan-date" id="plan-date"></div>
+                </div>
+                
+                <!-- Parlay Options -->
+                <div id="parlay-options"></div>
+                
+                <!-- Boost Arb Play -->
+                <div class="play-card boost-play hidden" id="boost-play-card">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #ffd93d; color: #000; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">🎁 BOOST PLAY</span>
+                        <span style="color: #888; font-size: 0.8rem;">Separate from parlay budget</span>
+                    </div>
+                    <div id="boost-play-content"></div>
+                </div>
+                
+                <!-- Summary -->
+                <div class="summary-card">
+                    <div class="label">Best Case (if hedge reached)</div>
+                    <div class="value" id="total-best">+$0.00</div>
+                    <div class="detail" id="total-breakdown"></div>
+                </div>
+                
+                <div class="worst-case">
+                    <div class="label">Worst Case</div>
+                    <div class="value" id="worst-case">-$0.00</div>
+                    <div class="detail" id="worst-explain"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== ALT STRATEGY TAB ==================== -->
+        <div class="tab-content" id="tab-alt">
+            <div class="card">
+                <h2><span class="icon">🎲</span> Alternative Strategy</h2>
+                
+                <div class="alt-explanation">
+                    <h4>Longshot + 2-Leg Parlay Hedge</h4>
+                    <p>Instead of betting favorites and hedging with the underdog, this strategy flips it:</p>
+                    <ul style="margin: 10px 0 0 20px; color: #888; font-size: 0.8rem; line-height: 1.6;">
+                        <li><strong style="color: #4dabf7;">Bet the underdog</strong> at +200 or higher</li>
+                        <li><strong style="color: #4dabf7;">Hedge with a 2-leg parlay:</strong> Heavy favorite ML + high-probability prop</li>
+                        <li>The parlay's combined odds offset the favorite's low payout</li>
+                    </ul>
+                </div>
+                
+                <div class="setup-section">
+                    <div class="setup-header">💰 Alt Strategy Budget</div>
+                    <div class="budget-row">
+                        <div class="budget-item">
+                            <label>Total to Risk</label>
+                            <div class="value-input">
+                                <span>$</span>
+                                <input type="number" id="alt-budget" value="30">
+                            </div>
+                        </div>
+                        <div class="budget-item">
+                            <label>Min Underdog Odds</label>
+                            <div class="value-input">
+                                <span>+</span>
+                                <input type="number" id="alt-min-odds" value="200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="setup-section">
+                    <div class="setup-header">📅 Game Days</div>
+                    <div class="day-chips" id="alt-day-chips">
+                        <div class="day-chip">Loading...</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="generateAltStrategy()">
+                    Find Alt Strategy Plays
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading hidden" id="alt-loading">
+                ⏳ Fetching player props and analyzing games...
+            </div>
+            
+            <!-- Error -->
+            <div class="error hidden" id="alt-error"></div>
+            
+            <!-- Alt Strategy Results -->
+            <div class="hidden" id="alt-results">
+                <div id="alt-plays"></div>
+            </div>
+        </div>
+        
+        <!-- ==================== CALCULATOR TAB ==================== -->
+        <div class="tab-content" id="tab-calculator">
+            <div class="card">
+                <h2><span class="icon">📊</span> Manual Calculator</h2>
+                
+                <div class="input-group">
+                    <label>Parlay Stake ($)</label>
+                    <input type="number" id="stake" value="20" oninput="calculate()">
+                </div>
+                
+                <!-- Leg 1 -->
+                <div class="input-group">
+                    <div class="leg-header">
+                        <label>Leg 1</label>
+                        <div class="leg-status">
+                            <button class="active" onclick="setLegStatus(1, 'pending')">Pending</button>
+                            <button onclick="setLegStatus(1, 'won')">Won</button>
+                        </div>
+                    </div>
+                    <input type="text" id="team1" placeholder="Team name" oninput="calculate()">
+                    <input type="number" id="odds1" placeholder="Odds (e.g., -150)" oninput="calculate()" style="margin-top: 4px;">
+                    <div class="opponent-input">
+                        <input type="text" id="opponent1" placeholder="vs Opponent">
+                    </div>
+                </div>
+                
+                <!-- Leg 2 -->
+                <div class="input-group">
+                    <div class="leg-header">
+                        <label>Leg 2</label>
+                        <div class="leg-status">
+                            <button class="active" onclick="setLegStatus(2, 'pending')">Pending</button>
+                            <button onclick="setLegStatus(2, 'won')">Won</button>
+                        </div>
+                    </div>
+                    <input type="text" id="team2" placeholder="Team name" oninput="calculate()">
+                    <input type="number" id="odds2" placeholder="Odds (e.g., -150)" oninput="calculate()" style="margin-top: 4px;">
+                    <div class="opponent-input">
+                        <input type="text" id="opponent2" placeholder="vs Opponent">
+                    </div>
+                </div>
+                
+                <!-- Leg 3 -->
+                <div class="input-group">
+                    <div class="leg-header">
+                        <label>Leg 3 (Hedge Game)</label>
+                        <div class="leg-status">
+                            <button class="active" onclick="setLegStatus(3, 'pending')">Pending</button>
+                            <button onclick="setLegStatus(3, 'won')">Won</button>
+                        </div>
+                    </div>
+                    <input type="text" id="team3" placeholder="Team name" oninput="calculate()">
+                    <input type="number" id="odds3" placeholder="Odds (e.g., -130)" oninput="calculate()" style="margin-top: 4px;">
+                    <div class="opponent-input">
+                        <input type="text" id="opponent3" placeholder="vs Opponent" oninput="syncOpponent()">
+                    </div>
+                </div>
+                
+                <!-- Results -->
+                <div class="setup-section" style="margin-top: 16px;">
+                    <div class="result-row">
+                        <span class="label">Combined Odds</span>
+                        <span class="value" id="combined-odds">--</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Total Payout</span>
+                        <span class="value" id="total-payout">--</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="label">Profit</span>
+                        <span class="value positive" id="profit">--</span>
+                    </div>
+                </div>
+                
+                <!-- Hedge Calculator -->
+                <div class="hedge-card hidden" id="hedge-card">
+                    <h3>🔒 Hedge Calculator</h3>
+                    <div class="input-group">
+                        <label>Opponent (to hedge)</label>
+                        <input type="text" id="hedge-opponent" placeholder="Opposing team">
+                    </div>
+                    <div class="input-group">
+                        <label>Opponent ML Odds</label>
+                        <input type="number" id="hedge-odds" placeholder="+110" oninput="calculate()">
+                    </div>
+                    
+                    <div class="hedge-option">
+                        <h4>Option 1: Lock in Equal Profit</h4>
+                        <div class="hedge-detail">
+                            <span id="hedge1-amount">Bet $--</span>
+                            <span>If parlay wins: <span id="hedge1-win" style="color:#00d4aa">+$--</span></span>
+                            <span>If hedge wins: <span id="hedge1-lose" style="color:#00d4aa">+$--</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="hedge-option">
+                        <h4>Option 2: Break Even on Hedge</h4>
+                        <div class="hedge-detail">
+                            <span id="hedge2-amount">Bet $--</span>
+                            <span>If parlay wins: <span id="hedge2-win" style="color:#00d4aa">+$--</span></span>
+                            <span>If hedge wins: <span id="hedge2-lose">$0</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" onclick="resetCalculator()" style="margin-top: 16px;">Reset</button>
+            </div>
+        </div>
+        
+        <!-- ==================== PROMOS TAB ==================== -->
+        <div class="tab-content" id="tab-promotions">
+            <div class="card">
+                <h2><span class="icon">🎁</span> Promotion Tools</h2>
+                
+                <!-- Arbitrage Calculator -->
+                <div class="promo-section">
+                    <h3>📊 Two-Book Arbitrage</h3>
+                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 12px;">Use a boost on DK, hedge on FD for guaranteed profit</p>
+                    
+                    <div class="budget-row" style="margin-bottom: 12px;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>DK Odds</label>
+                            <input type="number" id="arb-dk-odds" placeholder="+200" oninput="calcArbitrage()">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>Boost %</label>
+                            <input type="number" id="arb-boost-pct" value="30" oninput="calcArbitrage()">
+                        </div>
+                    </div>
+                    
+                    <div class="budget-row" style="margin-bottom: 12px;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>DK Bet</label>
+                            <input type="number" id="arb-dk-bet" value="10" oninput="calcArbitrage()">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>Boosted Odds</label>
+                            <div style="padding: 10px 12px; background: rgba(0,212,170,0.1); border-radius: 8px; color: #00d4aa; font-weight: 600;" id="arb-boosted-odds">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="budget-row" style="margin-bottom: 12px;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>FD Odds (opposite)</label>
+                            <input type="number" id="arb-fd-odds" placeholder="-180" oninput="calcArbitrage()">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>FD Bet Needed</label>
+                            <input type="text" id="arb-fd-bet" readonly style="background: rgba(255,255,255,0.05);">
+                        </div>
+                    </div>
+                    
+                    <div class="setup-section" style="background: rgba(0,212,170,0.1); margin-bottom: 0;">
+                        <div class="result-row">
+                            <span class="label">If DK wins</span>
+                            <span class="value positive" id="arb-dk-profit">--</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">If FD wins</span>
+                            <span class="value" id="arb-fd-profit">--</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Guaranteed</span>
+                            <span class="value positive" id="arb-guaranteed" style="font-size: 1.1rem;">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Free Bet Converter -->
+                <div class="promo-section">
+                    <h3>🎟️ Free Bet Converter</h3>
+                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 12px;">Convert free bets to cash (aim for +300 odds or higher)</p>
+                    
+                    <div class="budget-row" style="margin-bottom: 12px;">
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>Free Bet Amount</label>
+                            <input type="number" id="fb-amount" value="50" oninput="calcFreeBet()">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0;">
+                            <label>Free Bet Odds</label>
+                            <input type="number" id="fb-odds" value="300" placeholder="+300" oninput="calcFreeBet()">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Hedge Odds (other book)</label>
+                        <input type="number" id="fb-hedge-odds" value="-350" oninput="calcFreeBet()">
+                    </div>
+                    
+                    <div class="setup-section" style="background: rgba(255,217,61,0.1); margin-bottom: 0;">
+                        <div class="result-row">
+                            <span class="label">Hedge Amount Needed</span>
+                            <span class="value" id="fb-hedge-amount">--</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Guaranteed Extraction</span>
+                            <span class="value positive" id="fb-extraction">--</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Conversion Rate</span>
+                            <span class="value" id="fb-rate">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Config
+        const API_KEY = '87fc34bfecdd60acb010f642ce88225d';
+        const SPORT = 'americanfootball_nfl';
+        
+        // State
+        let gamesData = [];
+        let propsData = {};
+        let selectedDays = new Set();
+        let altSelectedDays = new Set();
+        let legStatus = { 1: 'pending', 2: 'pending', 3: 'pending' };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchGameSchedule();
+            calculate();
+            calcArbitrage();
+            calcFreeBet();
+            
+            const boostTypeEl = document.getElementById('boost-type');
+            if (boostTypeEl) {
+                boostTypeEl.addEventListener('change', updateMinOddsVisibility);
+            }
+        });
+        
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            const tabs = ['coach', 'alt', 'calculator', 'promotions'];
+            const tabIndex = tabs.indexOf(tabName);
+            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Sync day chips for alt tab
+            if (tabName === 'alt') {
+                buildAltDayChips();
+            }
+        }
+        
+        // ==================== UTILITY FUNCTIONS ====================
+        
+        function americanToDecimal(american) {
+            if (!american || american === 0) return null;
+            if (american > 0) return 1 + (american / 100);
+            return 1 + (100 / Math.abs(american));
+        }
+        
+        function decimalToAmerican(decimal) {
+            if (!decimal || decimal <= 1) return 0;
+            if (decimal >= 2) return Math.round((decimal - 1) * 100);
+            return Math.round(-100 / (decimal - 1));
+        }
+        
+        function applyProfitBoost(americanOdds, boostPct) {
+            const decimal = americanToDecimal(americanOdds);
+            if (!decimal) return americanOdds;
+            const profit = decimal - 1;
+            const boostedProfit = profit * (1 + boostPct / 100);
+            return decimalToAmerican(1 + boostedProfit);
+        }
+        
+        function applyOddsBoost(americanOdds, boostPct) {
+            const boosted = americanOdds * (1 + boostPct / 100);
+            return Math.round(boosted);
+        }
+        
+        function formatOdds(odds) {
+            if (!odds) return '--';
+            return odds > 0 ? `+${odds}` : `${odds}`;
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+        }
+        
+        // ==================== BOOST CONFIG ====================
+        
+        function toggleBoostConfig() {
+            const hasBoost = document.getElementById('has-boost').checked;
+            const config = document.getElementById('boost-config');
+            config.classList.toggle('visible', hasBoost);
+            updateMinOddsVisibility();
+        }
+        
+        function updateMinOddsVisibility() {
+            const boostType = document.getElementById('boost-type').value;
+            const minOddsRow = document.getElementById('min-odds-row');
+            minOddsRow.style.display = boostType === 'profit' ? 'grid' : 'none';
+        }
+        
+        // ==================== FETCH DATA ====================
+        
+        async function fetchGameSchedule() {
+            try {
+                const apiUrl = `https://api.the-odds-api.com/v4/sports/${SPORT}/odds/?apiKey=${API_KEY}&regions=us&markets=h2h&oddsFormat=american&bookmakers=draftkings,fanduel`;
+                
+                const proxies = [
+                    `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`
+                ];
+                
+                let data = null;
+                
+                for (const proxyUrl of proxies) {
+                    try {
+                        console.log('Trying proxy:', proxyUrl.substring(0, 40) + '...');
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            data = await response.json();
+                            if (Array.isArray(data) && data.length > 0) {
+                                console.log('Success! Loaded', data.length, 'games');
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Proxy failed:', e.message);
+                    }
+                }
+                
+                if (data && data.length > 0) {
+                    gamesData = data;
+                    buildDayChips();
+                } else {
+                    document.getElementById('day-chips').innerHTML = '<div class="day-chip">No NFL games found. <a href="#" onclick="fetchGameSchedule(); return false;" style="color:#00d4aa;">Retry</a></div>';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('day-chips').innerHTML = '<div class="day-chip">Could not load. <a href="#" onclick="fetchGameSchedule(); return false;" style="color:#00d4aa;">Retry</a></div>';
+            }
+        }
+        
+        async function fetchPlayerProps(eventId) {
+            try {
+                const apiUrl = `https://api.the-odds-api.com/v4/sports/${SPORT}/events/${eventId}/odds?apiKey=${API_KEY}&regions=us&markets=player_reception_yds,player_rush_yds,player_pass_tds&oddsFormat=american&bookmakers=draftkings,fanduel`;
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+                
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data;
+                }
+            } catch (e) {
+                console.log('Props fetch failed for', eventId, e.message);
+            }
+            return null;
+        }
+        
+        // ==================== DAY CHIPS ====================
+        
+        function buildDayChips() {
+            const gamesByDay = {};
+            
+            gamesData.forEach(game => {
+                const date = new Date(game.commence_time);
+                const dayKey = date.toDateString();
+                if (!gamesByDay[dayKey]) {
+                    gamesByDay[dayKey] = { date, games: [] };
+                }
+                gamesByDay[dayKey].games.push(game);
+            });
+            
+            const days = Object.values(gamesByDay).sort((a, b) => a.date - b.date);
+            const container = document.getElementById('day-chips');
+            container.innerHTML = '';
+            
+            days.forEach((day, i) => {
+                const chip = document.createElement('div');
+                chip.className = 'day-chip' + (i === 0 ? ' selected' : '');
+                chip.dataset.day = day.date.toDateString();
+                chip.innerHTML = `
+                    ${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    <span class="game-count">(${day.games.length})</span>
+                `;
+                chip.onclick = () => toggleDay(chip, 'main');
+                container.appendChild(chip);
+                
+                if (i === 0) selectedDays.add(day.date.toDateString());
+            });
+        }
+        
+        function buildAltDayChips() {
+            const gamesByDay = {};
+            
+            gamesData.forEach(game => {
+                const date = new Date(game.commence_time);
+                const dayKey = date.toDateString();
+                if (!gamesByDay[dayKey]) {
+                    gamesByDay[dayKey] = { date, games: [] };
+                }
+                gamesByDay[dayKey].games.push(game);
+            });
+            
+            const days = Object.values(gamesByDay).sort((a, b) => a.date - b.date);
+            const container = document.getElementById('alt-day-chips');
+            container.innerHTML = '';
+            
+            days.forEach((day, i) => {
+                const chip = document.createElement('div');
+                chip.className = 'day-chip' + (altSelectedDays.has(day.date.toDateString()) ? ' selected' : (i === 0 && altSelectedDays.size === 0 ? ' selected' : ''));
+                chip.dataset.day = day.date.toDateString();
+                chip.innerHTML = `
+                    ${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    <span class="game-count">(${day.games.length})</span>
+                `;
+                chip.onclick = () => toggleDay(chip, 'alt');
+                container.appendChild(chip);
+                
+                if (i === 0 && altSelectedDays.size === 0) altSelectedDays.add(day.date.toDateString());
+            });
+        }
+        
+        function toggleDay(chip, type) {
+            const day = chip.dataset.day;
+            const daySet = type === 'alt' ? altSelectedDays : selectedDays;
+            
+            if (daySet.has(day)) {
+                daySet.delete(day);
+                chip.classList.remove('selected');
+            } else {
+                daySet.add(day);
+                chip.classList.add('selected');
+            }
+        }
+        
+        // ==================== PROCESS GAMES ====================
+        
+        function processGames(games) {
+            const processed = [];
+            
+            games.forEach((game, index) => {
+                const dk = game.bookmakers.find(b => b.key === 'draftkings');
+                const fd = game.bookmakers.find(b => b.key === 'fanduel');
+                
+                if (!dk) return;
+                
+                const dkMarket = dk.markets.find(m => m.key === 'h2h');
+                const fdMarket = fd?.markets?.find(m => m.key === 'h2h');
+                
+                if (!dkMarket) return;
+                
+                const homeTeam = game.home_team;
+                const awayTeam = game.away_team;
+                
+                const dkHome = dkMarket.outcomes.find(o => o.name === homeTeam)?.price;
+                const dkAway = dkMarket.outcomes.find(o => o.name === awayTeam)?.price;
+                const fdHome = fdMarket?.outcomes?.find(o => o.name === homeTeam)?.price;
+                const fdAway = fdMarket?.outcomes?.find(o => o.name === awayTeam)?.price;
+                
+                if (!dkHome || !dkAway) return;
+                
+                const homeProb = 1 / americanToDecimal(dkHome);
+                const awayProb = 1 / americanToDecimal(dkAway);
+                
+                const favorite = homeProb > awayProb ? 
+                    { name: homeTeam, odds: dkHome, fdOdds: fdHome, prob: homeProb } :
+                    { name: awayTeam, odds: dkAway, fdOdds: fdAway, prob: awayProb };
+                
+                const underdog = homeProb > awayProb ?
+                    { name: awayTeam, odds: dkAway, fdOdds: fdAway, prob: awayProb } :
+                    { name: homeTeam, odds: dkHome, fdOdds: fdHome, prob: homeProb };
+                
+                processed.push({
+                    id: game.id,
+                    index,
+                    game,
+                    homeTeam,
+                    awayTeam,
+                    dkHome,
+                    dkAway,
+                    fdHome,
+                    fdAway,
+                    favorite,
+                    underdog,
+                    oddsSpread: Math.abs(homeProb - awayProb),
+                    gameTime: new Date(game.commence_time)
+                });
+            });
+            
+            return processed;
+        }
+        
+        // ==================== FIND OPTIMAL PARLAYS ====================
+        
+        function findOptimalParlays(games, totalBudget, boostConfig) {
+            const GAME_DURATION = 3.5 * 60 * 60 * 1000;
+            const sorted = [...games].sort((a, b) => b.favorite.prob - a.favorite.prob);
+            
+            let allParlays = [];
+            
+            // Try combinations
+            for (let i = 0; i < Math.min(sorted.length, 5); i++) {
+                for (let j = i + 1; j < Math.min(sorted.length, 6); j++) {
+                    const leg1 = sorted[i];
+                    const leg2 = sorted[j];
+                    
+                    const leg1End = new Date(leg1.gameTime.getTime() + GAME_DURATION);
+                    const leg2End = new Date(leg2.gameTime.getTime() + GAME_DURATION);
+                    const minLeg3Start = new Date(Math.max(leg1End, leg2End));
+                    
+                    // Find valid leg 3 games
+                    const leg3Candidates = games.filter(g => 
+                        g.index !== leg1.index && 
+                        g.index !== leg2.index && 
+                        g.gameTime >= minLeg3Start
+                    ).sort((a, b) => a.oddsSpread - b.oddsSpread);
+                    
+                    if (leg3Candidates.length === 0) continue;
+                    
+                    const leg3 = leg3Candidates[0];
+                    
+                    // Calculate for budget parlay
+                    const legs = [leg1.favorite, leg2.favorite, leg3.favorite];
+                    const combinedDec = legs.reduce((acc, l) => {
+                        const dec = americanToDecimal(l.odds);
+                        return dec ? acc * dec : acc;
+                    }, 1);
+                    const oppDec = americanToDecimal(leg3.underdog.odds);
+                    
+                    if (!combinedDec || combinedDec === 1 || !oppDec) continue;
+                    
+                    const optimalStake = totalBudget / (1 + combinedDec / oppDec);
+                    const payout = optimalStake * combinedDec;
+                    const hedgeAmount = payout / oppDec;
+                    const guaranteed = payout - optimalStake - hedgeAmount;
+                    
+                    const probReachHedge = leg1.favorite.prob * leg2.favorite.prob;
+                    const score = probReachHedge * 100 + guaranteed * 2;
+                    
+                    allParlays.push({
+                        type: 'budget',
+                        legs: [
+                            { ...leg1.favorite, opponent: leg1.underdog.name, gameTime: leg1.gameTime },
+                            { ...leg2.favorite, opponent: leg2.underdog.name, gameTime: leg2.gameTime },
+                            { ...leg3.favorite, opponent: leg3.underdog.name, opponentOdds: leg3.underdog.odds, gameTime: leg3.gameTime }
+                        ],
+                        stake: optimalStake,
+                        payout,
+                        hedgeAmount,
+                        hedgeTeam: leg3.underdog.name,
+                        hedgeOdds: leg3.underdog.odds,
+                        guaranteed,
+                        probReachHedge,
+                        score
+                    });
+                }
+            }
+            
+            // Sort by score
+            allParlays.sort((a, b) => b.score - a.score);
+            
+            // Return top 3 budget parlays
+            return allParlays.slice(0, 3);
+        }
+        
+        function findBoostArbitrage(games, boostBudget) {
+            const hasBoost = document.getElementById('has-boost').checked;
+            if (!hasBoost) return null;
+            
+            const boostType = document.getElementById('boost-type').value;
+            const boostPct = parseFloat(document.getElementById('boost-pct').value) || 30;
+            const boostApplies = document.getElementById('boost-applies').value;
+            const maxBet = parseFloat(document.getElementById('boost-max').value) || 10;
+            const minOdds = boostType === 'profit' ? parseFloat(document.getElementById('boost-min-odds').value) || 300 : 0;
+            
+            const betAmount = Math.min(boostBudget, maxBet);
+            
+            // For single bet boost, find best arb opportunity
+            if (boostApplies === 'single') {
+                let bestArb = null;
+                let bestProfit = -Infinity;
+                
+                games.forEach(game => {
+                    const originalOdds = game.underdog.odds;
+                    if (!originalOdds) return;
+                    if (minOdds > 0 && originalOdds < minOdds) return;
+                    
+                    const boostedOdds = boostType === 'profit' ? 
+                        applyProfitBoost(originalOdds, boostPct) : 
+                        applyOddsBoost(originalOdds, boostPct);
+                    
+                    const fdOdds = game.favorite.fdOdds;
+                    if (!fdOdds) return;
+                    
+                    const boostedDec = americanToDecimal(boostedOdds);
+                    const fdDec = americanToDecimal(fdOdds);
+                    
+                    if (!boostedDec || !fdDec) return;
+                    
+                    const dkWinnings = betAmount * (boostedDec - 1);
+                    const totalReturn = betAmount + dkWinnings;
+                    const hedgeAmount = totalReturn / fdDec;
+                    const guaranteed = Math.min(dkWinnings - hedgeAmount, hedgeAmount * (fdDec - 1) - betAmount);
+                    
+                    if (guaranteed > bestProfit) {
+                        bestProfit = guaranteed;
+                        bestArb = {
+                            game: game.homeTeam + ' vs ' + game.awayTeam,
+                            gameTime: game.gameTime,
+                            dkTeam: game.underdog.name,
+                            dkOdds: originalOdds,
+                            boostedOdds,
+                            dkBet: betAmount,
+                            fdTeam: game.favorite.name,
+                            fdOdds,
+                            fdBet: hedgeAmount,
+                            guaranteed,
+                            totalCapital: betAmount + hedgeAmount
+                        };
+                    }
+                });
+                
+                return bestArb && bestArb.guaranteed > 0 ? bestArb : null;
+            }
+            
+            return null;
+        }
+        
+        // ==================== GENERATE GAME PLAN ====================
+        
+        async function generateGamePlan() {
+            const btn = document.getElementById('generate-btn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const plan = document.getElementById('game-plan');
+            
+            if (selectedDays.size === 0) {
+                error.textContent = 'Please select at least one day.';
+                error.classList.remove('hidden');
+                return;
+            }
+            
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            error.classList.add('hidden');
+            plan.classList.add('hidden');
+            
+            try {
+                const filteredGames = gamesData.filter(g => {
+                    const date = new Date(g.commence_time);
+                    return selectedDays.has(date.toDateString());
+                });
+                
+                if (filteredGames.length < 3) {
+                    throw new Error('Need at least 3 games. Try selecting more days.');
+                }
+                
+                const processed = processGames(filteredGames);
+                
+                if (processed.length < 3) {
+                    throw new Error('Not enough games with valid odds.');
+                }
+                
+                // Get budgets
+                const totalBudget = parseFloat(document.getElementById('coach-total-budget').value) || 50;
+                const boostBudget = parseFloat(document.getElementById('coach-boost-budget').value) || 25;
+                
+                // Find optimal parlays (top 3)
+                const parlays = findOptimalParlays(processed, totalBudget, null);
+                
+                if (!parlays || parlays.length === 0) {
+                    throw new Error('Could not find valid parlay. Leg 3 must start after legs 1 & 2 finish.');
+                }
+                
+                // Find boost arbitrage (separate from parlay)
+                const boostPlay = findBoostArbitrage(processed, boostBudget);
+                
+                // Render
+                renderGamePlan(parlays, boostPlay);
+                plan.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error('Error:', err);
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
+        
+        function renderGamePlan(parlays, boostPlay) {
+            document.getElementById('plan-date').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' 
+            });
+            
+            // Render parlay options
+            const container = document.getElementById('parlay-options');
+            let html = `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <span style="background: linear-gradient(135deg, #00d4aa, #00a080); color: #000; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">1</span>
+                    <div>
+                        <div style="font-weight: 700; color: #fff;">Parlay + Hedge Options</div>
+                        <div style="color: #888; font-size: 0.75rem;">Top 3 ranked by probability × profit</div>
+                    </div>
+                </div>
+            `;
+            
+            parlays.forEach((p, idx) => {
+                const isRecommended = idx === 0;
+                const probPercent = (p.probReachHedge * 100).toFixed(0);
+                
+                const legsHtml = p.legs.map((leg, i) => `
+                    <div class="leg-row">
+                        <div class="leg-info">
+                            <span class="team">${leg.name}</span>
+                            <span class="odds">${formatOdds(leg.odds)}</span>
+                            <span class="opponent">vs ${leg.opponent}</span>
+                        </div>
+                        <div class="leg-time">${formatTime(leg.gameTime)}${i === 2 ? ' • Hedge' : ''}</div>
+                    </div>
+                `).join('');
+                
+                html += `
+                    <div class="parlay-option ${isRecommended ? 'recommended' : ''}">
+                        <div class="option-header">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="option-badge ${isRecommended ? 'recommended' : 'budget'}">${isRecommended ? '⭐ BEST' : `#${idx + 1}`}</span>
+                                <span style="color: #888; font-size: 0.75rem;">${probPercent}% to hedge</span>
+                            </div>
+                            <div class="option-profit">
+                                <div class="amount">+$${p.guaranteed.toFixed(2)}</div>
+                                <div class="subtext">if hedge reached</div>
+                            </div>
+                        </div>
+                        ${legsHtml}
+                        <div class="option-footer">
+                            <div>
+                                <span class="label">Stake:</span>
+                                <span class="value">$${p.stake.toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="label">Hedge:</span>
+                                <span class="value">$${p.hedgeAmount.toFixed(2)}</span>
+                                <span class="hedge-info">on ${p.hedgeTeam} (${formatOdds(p.hedgeOdds)})</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Render boost play if available
+            const boostCard = document.getElementById('boost-play-card');
+            let boostProfit = 0;
+            
+            if (boostPlay && boostPlay.guaranteed > 0) {
+                boostCard.classList.remove('hidden');
+                document.getElementById('boost-play-content').innerHTML = `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                        <div style="color: #888; font-size: 0.75rem; margin-bottom: 4px;">Step 1: Boosted bet on DraftKings</div>
+                        <div style="color: #fff;">
+                            <span style="font-weight: 600;">$${boostPlay.dkBet.toFixed(2)}</span> on 
+                            <span style="color: #ffd93d;">${boostPlay.dkTeam}</span>
+                            <span style="color: #00d4aa;">${formatOdds(boostPlay.boostedOdds)}</span>
+                            <span style="color: #666; font-size: 0.8rem;">(was ${formatOdds(boostPlay.dkOdds)})</span>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                        <div style="color: #888; font-size: 0.75rem; margin-bottom: 4px;">Step 2: Hedge on FanDuel</div>
+                        <div style="color: #fff;">
+                            <span style="font-weight: 600;">$${boostPlay.fdBet.toFixed(2)}</span> on 
+                            <span style="color: #4dabf7;">${boostPlay.fdTeam}</span>
+                            <span style="color: #00d4aa;">${formatOdds(boostPlay.fdOdds)}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div>
+                            <span style="color: #888; font-size: 0.8rem;">Total capital:</span>
+                            <span style="color: #fff; font-weight: 600;">$${boostPlay.totalCapital.toFixed(2)}</span>
+                        </div>
+                        <div>
+                            <span style="color: #888; font-size: 0.8rem;">Guaranteed:</span>
+                            <span style="color: #00d4aa; font-weight: 700; font-size: 1.1rem;">+$${boostPlay.guaranteed.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                boostProfit = boostPlay.guaranteed;
+            } else {
+                boostCard.classList.add('hidden');
+            }
+            
+            // Summary (based on best parlay)
+            const bestParlay = parlays[0];
+            const totalProfit = bestParlay.guaranteed + boostProfit;
+            document.getElementById('total-best').textContent = `+$${totalProfit.toFixed(2)}`;
+            
+            if (boostProfit > 0) {
+                document.getElementById('total-breakdown').textContent = 
+                    `Parlay: $${bestParlay.guaranteed.toFixed(2)} + Boost: $${boostProfit.toFixed(2)}`;
+            } else {
+                document.getElementById('total-breakdown').textContent = 'From best parlay option';
+            }
+            
+            // Worst case
+            const worstCase = -bestParlay.stake + boostProfit;
+            document.getElementById('worst-case').textContent = worstCase >= 0 ? 
+                `+$${worstCase.toFixed(2)}` : `-$${Math.abs(worstCase).toFixed(2)}`;
+            document.getElementById('worst-explain').textContent = boostProfit > 0 ?
+                `Lose $${bestParlay.stake.toFixed(2)} parlay, keep $${boostProfit.toFixed(2)} boost profit` :
+                `If legs 1 or 2 lose, you lose the parlay stake`;
+        }
+        
+        // ==================== ALT STRATEGY ====================
+        
+        async function generateAltStrategy() {
+            const loading = document.getElementById('alt-loading');
+            const error = document.getElementById('alt-error');
+            const results = document.getElementById('alt-results');
+            
+            if (altSelectedDays.size === 0) {
+                error.textContent = 'Please select at least one day.';
+                error.classList.remove('hidden');
+                return;
+            }
+            
+            loading.classList.remove('hidden');
+            error.classList.add('hidden');
+            results.classList.add('hidden');
+            
+            try {
+                const budget = parseFloat(document.getElementById('alt-budget').value) || 30;
+                const minUnderdogOdds = parseFloat(document.getElementById('alt-min-odds').value) || 200;
+                
+                const filteredGames = gamesData.filter(g => {
+                    const date = new Date(g.commence_time);
+                    return altSelectedDays.has(date.toDateString());
+                });
+                
+                if (filteredGames.length < 2) {
+                    throw new Error('Need at least 2 games for alt strategy.');
+                }
+                
+                const processed = processGames(filteredGames);
+                
+                // Fetch props for each game
+                loading.innerHTML = '⏳ Fetching player props...';
+                for (const game of processed) {
+                    const props = await fetchPlayerProps(game.id);
+                    if (props) {
+                        propsData[game.id] = props;
+                    }
+                }
+                
+                // Find alt strategy plays
+                const altPlays = findAltStrategyPlays(processed, budget, minUnderdogOdds);
+                
+                if (altPlays.length === 0) {
+                    throw new Error('No suitable alt strategy plays found. Try different parameters.');
+                }
+                
+                renderAltResults(altPlays);
+                results.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error('Error:', err);
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+                loading.innerHTML = '⏳ Fetching player props and analyzing games...';
+            }
+        }
+        
+        function findAltStrategyPlays(games, budget, minUnderdogOdds) {
+            const plays = [];
+            
+            games.forEach(game => {
+                // Check if underdog odds meet minimum
+                if (game.underdog.odds < minUnderdogOdds) return;
+                
+                // Find another heavy favorite for 2-leg parlay hedge
+                const otherFavorites = games
+                    .filter(g => g.index !== game.index && g.favorite.prob > 0.6)
+                    .sort((a, b) => b.favorite.prob - a.favorite.prob);
+                
+                if (otherFavorites.length === 0) return;
+                
+                const hedgeFavorite = otherFavorites[0];
+                
+                // Check for props data
+                const gameProps = propsData[game.id];
+                let bestProp = null;
+                
+                if (gameProps && gameProps.bookmakers) {
+                    const dkProps = gameProps.bookmakers.find(b => b.key === 'draftkings');
+                    if (dkProps) {
+                        // Find a high-probability prop (heavy favorite on over/under)
+                        dkProps.markets.forEach(market => {
+                            market.outcomes.forEach(outcome => {
+                                if (outcome.name === 'Over' && outcome.price < -200) {
+                                    if (!bestProp || outcome.price < bestProp.odds) {
+                                        bestProp = {
+                                            player: outcome.description,
+                                            type: market.key.replace('player_', '').replace('_', ' '),
+                                            line: outcome.point,
+                                            direction: 'Over',
+                                            odds: outcome.price
+                                        };
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+                
+                // Calculate the play
+                const underdogDec = americanToDecimal(game.underdog.odds);
+                const favoriteDec = americanToDecimal(hedgeFavorite.favorite.odds);
+                
+                // 2-leg parlay: favorite ML + prop (if available) or just favorite ML
+                let hedgeParlayDec;
+                let hedgeDescription;
+                
+                if (bestProp) {
+                    const propDec = americanToDecimal(bestProp.odds);
+                    hedgeParlayDec = favoriteDec * propDec;
+                    hedgeDescription = `${hedgeFavorite.favorite.name} ML + ${bestProp.player} ${bestProp.direction} ${bestProp.line} ${bestProp.type}`;
+                } else {
+                    // Use a second favorite instead
+                    if (otherFavorites.length > 1) {
+                        const secondFav = otherFavorites[1];
+                        const secondDec = americanToDecimal(secondFav.favorite.odds);
+                        hedgeParlayDec = favoriteDec * secondDec;
+                        hedgeDescription = `${hedgeFavorite.favorite.name} ML + ${secondFav.favorite.name} ML`;
+                    } else {
+                        // Just use single favorite as hedge
+                        hedgeParlayDec = favoriteDec;
+                        hedgeDescription = `${hedgeFavorite.favorite.name} ML`;
+                    }
+                }
+                
+                // Calculate stake allocation
+                // underdog bet + hedge parlay bet = budget
+                // If underdog wins: underdogBet * underdogDec = total return
+                // If hedge wins: hedgeBet * hedgeParlayDec = total return
+                // For equal profit: underdogBet * underdogDec = hedgeBet * hedgeParlayDec
+                
+                const totalCapital = budget;
+                const underdogBet = totalCapital / (1 + underdogDec / hedgeParlayDec);
+                const hedgeBet = totalCapital - underdogBet;
+                
+                const underdogPayout = underdogBet * underdogDec;
+                const hedgePayout = hedgeBet * hedgeParlayDec;
+                
+                const profitIfUnderdog = underdogPayout - totalCapital;
+                const profitIfHedge = hedgePayout - totalCapital;
+                const guaranteedProfit = Math.min(profitIfUnderdog, profitIfHedge);
+                
+                plays.push({
+                    game: game,
+                    underdogTeam: game.underdog.name,
+                    underdogOdds: game.underdog.odds,
+                    underdogBet,
+                    hedgeDescription,
+                    hedgeParlayOdds: decimalToAmerican(hedgeParlayDec),
+                    hedgeBet,
+                    hedgeFavorite: hedgeFavorite,
+                    prop: bestProp,
+                    profitIfUnderdog,
+                    profitIfHedge,
+                    guaranteedProfit,
+                    totalCapital
+                });
+            });
+            
+            // Sort by guaranteed profit
+            plays.sort((a, b) => b.guaranteedProfit - a.guaranteedProfit);
+            
+            return plays.slice(0, 3);
+        }
+        
+        function renderAltResults(plays) {
+            const container = document.getElementById('alt-plays');
+            
+            let html = `
+                <div class="plan-header" style="margin-bottom: 16px;">
+                    <h3 style="color: #4dabf7;">🎲 Alt Strategy Plays</h3>
+                    <div class="plan-date">Longshot + 2-Leg Parlay Hedge</div>
+                </div>
+            `;
+            
+            plays.forEach((play, idx) => {
+                const hasArb = play.guaranteedProfit > 0;
+                
+                html += `
+                    <div class="play-card alt-play">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div>
+                                <span style="background: #4dabf7; color: #000; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                    ${idx === 0 ? '⭐ BEST' : `#${idx + 1}`}
+                                </span>
+                                <span style="color: #888; font-size: 0.8rem; margin-left: 8px;">
+                                    ${play.game.homeTeam} vs ${play.game.awayTeam}
+                                </span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: ${hasArb ? '#00d4aa' : '#ffd93d'}; font-weight: 700;">
+                                    ${hasArb ? '+$' + play.guaranteedProfit.toFixed(2) : 'No arb'}
+                                </div>
+                                <div style="color: #666; font-size: 0.65rem;">${hasArb ? 'guaranteed' : 'check math'}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(77,171,247,0.1); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                            <div style="color: #888; font-size: 0.75rem; margin-bottom: 4px;">Bet 1: Underdog</div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #4dabf7; font-weight: 600;">${play.underdogTeam}</span>
+                                <span>
+                                    <span style="color: #00d4aa;">${formatOdds(play.underdogOdds)}</span>
+                                    <span style="color: #fff; font-weight: 600; margin-left: 8px;">$${play.underdogBet.toFixed(2)}</span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(0,212,170,0.1); border-radius: 8px; padding: 12px;">
+                            <div style="color: #888; font-size: 0.75rem; margin-bottom: 4px;">Bet 2: 2-Leg Parlay Hedge</div>
+                            <div style="color: #fff; font-size: 0.85rem; margin-bottom: 8px;">${play.hedgeDescription}</div>
+                            ${play.prop ? `
+                                <div class="prop-bet">
+                                    <span class="player">${play.prop.player}</span>
+                                    <span class="prop-line">${play.prop.direction} ${play.prop.line} ${play.prop.type}</span>
+                                    <span class="prop-odds">${formatOdds(play.prop.odds)}</span>
+                                </div>
+                            ` : ''}
+                            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                                <span style="color: #888;">Combined: <span style="color: #00d4aa;">${formatOdds(play.hedgeParlayOdds)}</span></span>
+                                <span style="color: #fff; font-weight: 600;">$${play.hedgeBet.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem;">
+                            <div>
+                                <span style="color: #888;">If underdog wins:</span>
+                                <span style="color: #00d4aa; font-weight: 600;">+$${play.profitIfUnderdog.toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #888;">If parlay hits:</span>
+                                <span style="color: #00d4aa; font-weight: 600;">+$${play.profitIfHedge.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // ==================== CALCULATOR FUNCTIONS ====================
+        
+        function setLegStatus(leg, status) {
+            legStatus[leg] = status;
+            const allLegStatuses = document.querySelectorAll('#tab-calculator .leg-status');
+            if (allLegStatuses[leg - 1]) {
+                const buttons = allLegStatuses[leg - 1].querySelectorAll('button');
+                buttons.forEach(b => b.classList.remove('active'));
+                buttons[status === 'pending' ? 0 : 1].classList.add('active');
+            }
+            calculate();
+        }
+        
+        function syncOpponent() {
+            document.getElementById('hedge-opponent').value = document.getElementById('opponent3').value;
+            calculate();
+        }
+        
+        function calculate() {
+            const stake = parseFloat(document.getElementById('stake').value) || 0;
+            const odds1 = parseFloat(document.getElementById('odds1').value);
+            const odds2 = parseFloat(document.getElementById('odds2').value);
+            const odds3 = parseFloat(document.getElementById('odds3').value);
+            const hedgeOdds = parseFloat(document.getElementById('hedge-odds').value);
+            
+            const dec1 = americanToDecimal(odds1);
+            const dec2 = americanToDecimal(odds2);
+            const dec3 = americanToDecimal(odds3);
+            
+            if (dec1 && dec2 && dec3) {
+                const combined = dec1 * dec2 * dec3;
+                const payout = stake * combined;
+                const profit = payout - stake;
+                
+                document.getElementById('combined-odds').textContent = combined.toFixed(2) + 'x';
+                document.getElementById('total-payout').textContent = '$' + payout.toFixed(2);
+                document.getElementById('profit').textContent = '+$' + profit.toFixed(2);
+                
+                const hedgeCard = document.getElementById('hedge-card');
+                if (legStatus[1] === 'won' && legStatus[2] === 'won' && legStatus[3] === 'pending') {
+                    hedgeCard.classList.remove('hidden');
+                    
+                    if (hedgeOdds) {
+                        const oppDec = americanToDecimal(hedgeOdds);
+                        
+                        const hedge1 = payout / oppDec;
+                        const h1Win = payout - stake - hedge1;
+                        const h1Lose = hedge1 * (oppDec - 1) - stake;
+                        
+                        document.getElementById('hedge1-amount').textContent = 'Bet $' + hedge1.toFixed(2);
+                        document.getElementById('hedge1-win').textContent = '+$' + h1Win.toFixed(2);
+                        document.getElementById('hedge1-lose').textContent = '+$' + h1Lose.toFixed(2);
+                        
+                        const hedge2 = stake / (oppDec - 1);
+                        const h2Win = payout - stake - hedge2;
+                        
+                        document.getElementById('hedge2-amount').textContent = 'Bet $' + hedge2.toFixed(2);
+                        document.getElementById('hedge2-win').textContent = '+$' + h2Win.toFixed(2);
+                        document.getElementById('hedge2-lose').textContent = '$0';
+                    }
+                } else {
+                    hedgeCard.classList.add('hidden');
+                }
+            } else {
+                document.getElementById('combined-odds').textContent = '--';
+                document.getElementById('total-payout').textContent = '--';
+                document.getElementById('profit').textContent = '--';
+            }
+        }
+        
+        function resetCalculator() {
+            document.getElementById('stake').value = '20';
+            ['team1', 'team2', 'team3', 'odds1', 'odds2', 'odds3', 'opponent1', 'opponent2', 'opponent3', 'hedge-opponent', 'hedge-odds'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            legStatus = { 1: 'pending', 2: 'pending', 3: 'pending' };
+            document.querySelectorAll('.leg-status button').forEach((b, i) => {
+                b.classList.toggle('active', i % 2 === 0);
+            });
+            calculate();
+        }
+        
+        // ==================== PROMO FUNCTIONS ====================
+        
+        function calcArbitrage() {
+            const dkOdds = parseFloat(document.getElementById('arb-dk-odds').value);
+            const fdOdds = parseFloat(document.getElementById('arb-fd-odds').value);
+            const boostPct = parseFloat(document.getElementById('arb-boost-pct').value) || 30;
+            const dkBet = parseFloat(document.getElementById('arb-dk-bet').value) || 10;
+            
+            if (!dkOdds || !fdOdds) {
+                ['arb-boosted-odds', 'arb-dk-profit', 'arb-fd-profit', 'arb-guaranteed'].forEach(id => {
+                    document.getElementById(id).textContent = '--';
+                });
+                document.getElementById('arb-fd-bet').value = '--';
+                return;
+            }
+            
+            const boosted = applyProfitBoost(dkOdds, boostPct);
+            const boostedDec = americanToDecimal(boosted);
+            const fdDec = americanToDecimal(fdOdds);
+            
+            const dkWinnings = dkBet * (boostedDec - 1);
+            const totalReturn = dkBet + dkWinnings;
+            const fdBet = totalReturn / fdDec;
+            
+            const profitIfDk = dkWinnings - fdBet;
+            const profitIfFd = fdBet * (fdDec - 1) - dkBet;
+            const guaranteed = Math.min(profitIfDk, profitIfFd);
+            
+            document.getElementById('arb-boosted-odds').textContent = formatOdds(boosted);
+            document.getElementById('arb-fd-bet').value = fdBet.toFixed(2);
+            document.getElementById('arb-dk-profit').textContent = '+$' + profitIfDk.toFixed(2);
+            document.getElementById('arb-fd-profit').textContent = (profitIfFd >= 0 ? '+$' : '-$') + Math.abs(profitIfFd).toFixed(2);
+            document.getElementById('arb-fd-profit').style.color = profitIfFd >= 0 ? '#00d4aa' : '#ff6b6b';
+            document.getElementById('arb-guaranteed').textContent = guaranteed >= 0 ? '+$' + guaranteed.toFixed(2) : 'No arb';
+            document.getElementById('arb-guaranteed').style.color = guaranteed >= 0 ? '#00d4aa' : '#ff6b6b';
+        }
+        
+        function calcFreeBet() {
+            const amount = parseFloat(document.getElementById('fb-amount').value) || 50;
+            const odds = parseFloat(document.getElementById('fb-odds').value) || 300;
+            const hedgeOdds = parseFloat(document.getElementById('fb-hedge-odds').value) || -350;
+            
+            const dec = americanToDecimal(odds);
+            const hedgeDec = americanToDecimal(hedgeOdds);
+            
+            if (!dec || !hedgeDec) {
+                document.getElementById('fb-hedge-amount').textContent = '--';
+                document.getElementById('fb-extraction').textContent = '--';
+                document.getElementById('fb-rate').textContent = '--';
+                return;
+            }
+            
+            const winnings = amount * (dec - 1);
+            const hedgeAmount = winnings / hedgeDec;
+            const extraction = winnings - hedgeAmount;
+            const rate = (extraction / amount) * 100;
+            
+            document.getElementById('fb-hedge-amount').textContent = '$' + hedgeAmount.toFixed(2);
+            document.getElementById('fb-extraction').textContent = '+$' + extraction.toFixed(2);
+            document.getElementById('fb-rate').textContent = rate.toFixed(1) + '%';
+        }
+    </script>
+</body>
+</html>
